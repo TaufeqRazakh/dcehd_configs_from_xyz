@@ -1,6 +1,6 @@
 # Have all your CONFIG-n-n-n.xyz files in the same working directory as this script.
 # The script will take the original XYZ file and convert into a DCEHD readable CONFIG
-# The script requires two arguments. It also shifts the co-ordinatyes in the by bix lenght when co-ordinates exceed the lattice size.
+# The script requires two arguments. It also shifts the co-ordinatyes to fit the lattice dimensions when co-ordinates exceed the lattice size.
 
 # @param .xyz file which needs to be converted to CONFIG for dcehd
 # @param output file which needs to be generated
@@ -46,7 +46,7 @@ INPUT_FILE.each do |line|
     # puts "#{lattice_matrix_scan}"
     lattice_matrix = lattice_matrix_scan[0][0]
     lattice_matrix_elems = lattice_matrix.split(/\s+/)
-    
+
     lx = lattice_matrix_elems[0].to_f
     ly = lattice_matrix_elems[4].to_f
     lz = lattice_matrix_elems[8].to_f
