@@ -11,7 +11,7 @@ if ARGV.length != 2
 end
 
 INPUT_CONFIG_FILE = ARGV[0] # xyz file to read
-OUTPUT_CONFIG_FILE = ARGV[1] # .dc file to write
+OUTPUT_CONFIG_FILE = ARGV[1] # config file to write
 
 unless File::exist?(INPUT_CONFIG_FILE)
   puts "The input file specified does not exist"
@@ -35,7 +35,7 @@ def get_lattice_constrained_coords(input_coords)
     else (c[1] + c[0]).round(9)
     end
   }
-  puts "#{@lattice_size}, #{input_coords}, #{lattice_constrained_coords}"
+  # puts "#{@lattice_size}, #{input_coords}, #{lattice_constrained_coords}"
   return lattice_constrained_coords
 end
 
@@ -55,10 +55,12 @@ INPUT_FILE.each do |line|
   elsif (INPUT_FILE.lineno > 2)
     # limit the co-ordinates to lattice dimension and write
     patricle_type_coordinates = line.split(/\s/)
+    patricle_type = patricle_type_coordinates[0]
     input_coordinates = patricle_type_coordinates.drop(1)
     input_coordinates = input_coordinates.map{ |v| v.to_f }
     final_coordinates = get_lattice_constrained_coords(input_coordinates)
-    write_line_to_file(final_coordinates.join(" ")+"\n", OUTPUT_FILE)
+    patricle_type_final_coordinates = final_coordinates.unshift(patricle_type)
+    write_line_to_file(patricle_type_final_coordinates.join(" ")+"\n", OUTPUT_FILE)
   else
     write_line_to_file(line, OUTPUT_FILE)
   end
