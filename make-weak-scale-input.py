@@ -1,7 +1,7 @@
 import numpy as np
-nx_md=4
-ny_md=4
-nz_md=4
+nx_md=16
+ny_md=16
+nz_md=16
 
 nx_buffer=1
 ny_buffer=1
