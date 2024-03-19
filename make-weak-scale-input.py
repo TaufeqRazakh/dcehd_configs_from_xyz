@@ -1,16 +1,16 @@
 import numpy as np
-nx_md=16
-ny_md=16
-nz_md=16
+nx_md=1
+ny_md=1
+nz_md=1
 
 nx_buffer=1
 ny_buffer=1
 nz_buffer=1
 
 
-nx_core=1
-ny_core=1
-nz_core=1
+nx_core=2
+ny_core=2
+nz_core=2
 
 nx_core_buffer=nx_core+nx_buffer
 ny_core_buffer=ny_core+ny_buffer
@@ -20,7 +20,7 @@ n_Pb=1
 n_Ti=1
 n_O=3
 
-unit_cell=np.array([[3.91,0.0,0.0], [0.0,3.91,0.0],[0.0,0.0,4.156]])
+unit_cell=np.array([[3.9690490000000000,0.0,0.0], [0.0,3.9690490000000000,0.0],[0.0,0.0,3.9690490000000000]])
 pos=np.array([ [   3.909999504,         3.909999504,       4.146000],
      [1.940999975  ,      1.940999975 ,      2.224681],
      [1.940999975  ,      1.940999975,       0.454640],

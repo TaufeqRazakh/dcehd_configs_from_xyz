@@ -46,9 +46,9 @@ print(MD_CELL.array)
 natoms=len(types)
 ids=[]
 for i in range(natoms) :
-    if(types[i]=='Ti') :
+    if(types[i]=='Pb') :
         ids.append(1)
-    elif(types[i]=='Pb') :
+    elif(types[i]=='Ti') :
         ids.append(2)
     elif(types[i]=='O') :
         ids.append(3)
