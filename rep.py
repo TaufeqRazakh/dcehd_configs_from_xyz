@@ -2,8 +2,8 @@
 Authors Thomas Linker @tlinker123, @TaufeqRazakh
 
 
-Example Usage:
-python rep.py 2 2 2
+For help with commands use:
+python3 rep.py --help
 
 """
 
