@@ -26,21 +26,23 @@ parser.add_argument('-i', '--input_file', nargs=1, default=None, type=pathlib.Pa
 
 args = parser.parse_args()
 
-
-a=3.9690490000000000
 nx=args.transformation[0]
 ny=args.transformation[1]
 nz=args.transformation[2]
 rep=[nx,ny,nz]
-if args.input_file is None:
-    atoms_unit = Atoms('TiPbO3',
-                  pbc=True,
-                  cell=(a, a, a),
-                  positions=[(a/2, a/2, a/2),
-                             (0, 0, 0),
-                             (a/2, 0, a / 2),
-                             (a / 2, a / 2, 0),
-                              (0,a / 2,a / 2)])
+
+a=3.9690490000000000
+atoms_unit = Atoms('TiPbO3',
+              pbc=True,
+              cell=(a, a, a),
+              positions=[(a/2, a/2, a/2),
+                         (0, 0, 0),
+                         (a/2, 0, a / 2),
+                         (a / 2, a / 2, 0),
+                          (0,a / 2,a / 2)])
+if args.input_file is not None:
+    atoms_unit = ase.io.read(args.input_file[0])
+
 mat=np.zeros((3,3),dtype=np.int64)
 for i in range(3) :
     mat[i,i]=rep[i]
