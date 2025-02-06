@@ -13,25 +13,34 @@ import ase.io
 import numpy as np
 import ase.build
 from ase import Atoms
-import sys
-#print (sys.argv)
-commands=sys.argv
-if(len(sys.argv)!=4) :
-    print(' User must supply nx ny nz replication')
-    raise('GOOD BYE')
+import argparse
+import pathlib
+
+parser = argparse.ArgumentParser(
+                    prog='REP',
+                    description='replicates a unit cell configuration')
+parser.add_argument('-t', '--transformation', nargs=3, type=int, required=True,
+                    help='The transpformations to apply on the x y z axis')
+parser.add_argument('-i', '--input_file', nargs=1, default=None, type=pathlib.Path, 
+                    help='Filename to read postions and create an ASE Atoms onject')
+
+args = parser.parse_args()
+
+
 a=3.9690490000000000
-nx=int(commands[1])
-ny=int(commands[2])
-nz=int(commands[3])
+nx=args.transformation[0]
+ny=args.transformation[1]
+nz=args.transformation[2]
 rep=[nx,ny,nz]
-atoms_unit = Atoms('PbTiO3',
-              pbc=True,
-              cell=(a, a, a),
-              positions=[(a/2, a/2, a/2),
-                         (0, 0, 0),
-                         (a/2, 0, a / 2),
-                         (a / 2, a / 2, 0),
-                          (0,a / 2,a / 2)])
+if args.input_file is None:
+    atoms_unit = Atoms('TiPbO3',
+                  pbc=True,
+                  cell=(a, a, a),
+                  positions=[(a/2, a/2, a/2),
+                             (0, 0, 0),
+                             (a/2, 0, a / 2),
+                             (a / 2, a / 2, 0),
+                              (0,a / 2,a / 2)])
 mat=np.zeros((3,3),dtype=np.int64)
 for i in range(3) :
     mat[i,i]=rep[i]
@@ -46,10 +55,10 @@ print(MD_CELL.array)
 natoms=len(types)
 ids=[]
 for i in range(natoms) :
-    if(types[i]=='Pb') :
-        ids.append(1)
-    elif(types[i]=='Ti') :
+    if(types[i]=='Ti') :
         ids.append(2)
+    elif(types[i]=='Pb') :
+        ids.append(1)
     elif(types[i]=='O') :
         ids.append(3)
 outfile='IN.CONFIG_REAL'
