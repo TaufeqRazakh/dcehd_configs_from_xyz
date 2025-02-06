@@ -1,6 +1,5 @@
 """
-Authors Thomas Linker @tlinker123.
-Edited by Taufeq Razakh @TaufeqRazakh
+Authors Thomas Linker @tlinker123, @TaufeqRazakh
 
 
 Example Usage:
