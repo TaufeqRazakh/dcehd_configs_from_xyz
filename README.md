@@ -34,3 +34,7 @@ There are two other tasks that you must complete before using this script.
 
 ### Run
 use a ruby compiler to use this program. Here is an example usage `ruby xyz_to_dc_config.rb CONFIG-2-2-2.xyz CONFIG_1`
+
+## Note to self
+
+My Python environment is located in `PTO scaling/September/weak-scaling/`
