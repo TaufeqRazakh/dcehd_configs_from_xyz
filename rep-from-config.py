@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """
-Replicate a numeric CONFIG/XYZ-like file with scaled coordinates.
+Replicate a numeric CONFIG/XYZ-like file with scaled coordinates using ASE.
 
 Example:
-python3 rep-from-config.py eval-config/P25108_2_orthorhombic.xyz 2 2 2
+.venv/bin/python rep-from-config.py eval-config/P25108_2_orthorhombic.xyz 2 2 2
 """
 
 import argparse
 from pathlib import Path
+
+import numpy as np
+import ase.io
+import ase.build
+from ase import Atoms
 
 
 UNIT_CELL_VECTORS = (
@@ -15,6 +20,13 @@ UNIT_CELL_VECTORS = (
     (0.0, 7.27, 0.0),
     (0.0, 0.0, 14.105),
 )
+
+TYPE_TO_SYMBOL = {
+    "1": "Si",
+    "2": "C",
+    "3": "H",
+}
+SYMBOL_TO_TYPE = {symbol: atom_type for atom_type, symbol in TYPE_TO_SYMBOL.items()}
 
 
 def read_config(path):
@@ -53,44 +65,30 @@ def read_config(path):
     return atom_types, scaled_positions
 
 
-def replicate(atom_types, scaled_positions, nx, ny, nz):
-    rep_atoms = []
-    for ix in range(nx):
-        for iy in range(ny):
-            for iz in range(nz):
-                for atom_type, (x, y, z) in zip(atom_types, scaled_positions):
-                    rep_atoms.append(
-                        (
-                            atom_type,
-                            (x + ix) / nx,
-                            (y + iy) / ny,
-                            (z + iz) / nz,
-                        )
-                    )
-    return rep_atoms
+def build_atoms(atom_types, scaled_positions):
+    try:
+        symbols = [TYPE_TO_SYMBOL[atom_type] for atom_type in atom_types]
+    except KeyError as exc:
+        known_types = ", ".join(sorted(TYPE_TO_SYMBOL))
+        raise ValueError(f"unknown atom type {exc.args[0]!r}; known types are: {known_types}") from exc
 
-
-def write_config(path, atoms):
-    with path.open("w") as config:
-        config.write(f"{len(atoms)}\n")
-        for atom_type, x, y, z in atoms:
-            config.write(f"{atom_type:>2s}  {x:12.8f} {y:12.8f} {z:12.8f}\n")
-
-
-def replicated_cell(cell_vectors, nx, ny, nz):
-    replicas = (nx, ny, nz)
-    return tuple(
-        tuple(component * replicas[row] for component in vector)
-        for row, vector in enumerate(cell_vectors)
+    return Atoms(
+        symbols=symbols,
+        scaled_positions=scaled_positions,
+        cell=UNIT_CELL_VECTORS,
+        pbc=True,
     )
 
 
-def print_cell(title, cell_vectors):
-    print(title)
-    print("[")
-    for vector in cell_vectors:
-        print(f"  [{vector[0]:12.8f}, {vector[1]:12.8f}, {vector[2]:12.8f}]")
-    print("]")
+def write_config(path, atoms):
+    scaled_positions = atoms.get_scaled_positions(wrap=True)
+    symbols = atoms.get_chemical_symbols()
+
+    with path.open("w") as config:
+        config.write(f"{len(atoms)}\n")
+        for symbol, (x, y, z) in zip(symbols, scaled_positions):
+            atom_type = SYMBOL_TO_TYPE[symbol]
+            config.write(f"{atom_type:>2s}  {x:12.8f} {y:12.8f} {z:12.8f}\n")
 
 
 def positive_int(value):
@@ -120,19 +118,31 @@ def main():
         default=Path("IN.CONFIG_SCALED"),
         help="output filename (default: IN.CONFIG_SCALED)",
     )
+    parser.add_argument(
+        "--xyz_file",
+        type=Path,
+        default=Path("out.xyz"),
+        help="replicated XYZ output filename (default: out.xyz)",
+    )
     args = parser.parse_args()
 
     atom_types, scaled_positions = read_config(args.input_file)
-    replicated_atoms = replicate(atom_types, scaled_positions, args.nx, args.ny, args.nz)
+    atoms = build_atoms(atom_types, scaled_positions)
+    transformation = np.diag([args.nx, args.ny, args.nz])
+    replicated_atoms = ase.build.make_supercell(atoms, transformation)
+
     write_config(args.output_file, replicated_atoms)
-    output_cell = replicated_cell(UNIT_CELL_VECTORS, args.nx, args.ny, args.nz)
+    ase.io.write(args.xyz_file, replicated_atoms)
 
     print(f"Input atoms: {len(atom_types)}")
     print(f"Replication: {args.nx} {args.ny} {args.nz}")
     print(f"Output atoms: {len(replicated_atoms)}")
-    print_cell("Cell before replication:", UNIT_CELL_VECTORS)
-    print_cell("Cell after replication:", output_cell)
+    print("MD CELL before replication ")
+    print(atoms.get_cell().array)
+    print("MD CELL after replication ")
+    print(replicated_atoms.get_cell().array)
     print(f"File opened: {args.output_file}")
+    print(f"XYZ file opened: {args.xyz_file}")
 
 
 if __name__ == "__main__":
